@@ -1,5 +1,19 @@
 # My Store App
 
+## Table of Contents
+- [Run Local Development](#run-local-development)
+- [Run Tests](#run-tests)
+- [Design Decisions](#design-decisions)
+  - [Technology Stack](#technology-stack)
+  - [Architecture](#architecture)
+- [Trade-offs and Assumptions](#trade-offs-and-assumptions)
+  - [Trade-offs](#trade-offs)
+  - [Assumptions](#assumptions)
+- [Known Issues and Incomplete Features](#known-issues-and-incomplete-features)
+  - [Current Limitations](#current-limitations)
+  - [Planned Improvements](#planned-improvements)
+- [Author](#author)
+
 ### Run Local Development
 
 - Clone the repository
@@ -58,6 +72,8 @@
 - TypeScript for static type checking and better code maintainability
 - Modular code structure for better scalability
 - Zustand for Managing State across app which includes selection of store, getting products of the store, and mutating cart
+- `react-hook-form` with `zod` for form validations
+- `MUI` used as an styling library for better management of theme as a project requirement
 
 ## Trade-offs and Assumptions
 
