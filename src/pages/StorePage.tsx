@@ -16,6 +16,7 @@ import { findMaxFromKey, findMinFromKey } from '../lib/utils/findMaxFromKey';
 
 import CircularProgressLoader from '../components/common/CircularProgressbarLoader';
 import FilterDrawer from '../components/store/FilterDrawer';
+import { Autocomplete, TextField } from '@mui/material';
 
 // Lazy load the ProductListing component
 const ProductListing = lazy(
@@ -34,11 +35,16 @@ const StorePage = () => {
 
   // States
   const [products, setProducts] = useState<Product[]>([]);
+  console.log('🚀 ~ StorePage ~ products:', products);
   const [uniqueCategories, setUniqueCategories] = useState<
     { label: string; value: string }[]
   >([]);
   const [priceRange, setPriceRange] = useState<number[]>([0, 0]);
   const [category, setCategory] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
 
   // Handle Store Selection for updating the selectedStore
   const handleStoreSelection = useCallback(() => {
@@ -124,6 +130,34 @@ const StorePage = () => {
     );
   }
 
+  const handleSorting = (
+    onChangeValue: {
+      label: string;
+      value: string;
+    } | null
+  ) => {
+    if (onChangeValue === null) {
+      setSortOrder(null);
+      handleSettingProducts();
+    }
+
+    if (!onChangeValue) return;
+
+    const { value } = onChangeValue;
+    setSortOrder(onChangeValue);
+
+    const sortedProducts: Product[] = [...products].sort((a, b) => {
+      if (value === 'asc') {
+        return a.price - b.price;
+      } else if (value === 'desc') {
+        return b.price - a.price;
+      }
+      return 0;
+    });
+
+    setProducts(sortedProducts);
+  };
+
   return (
     <StorePageWrapper>
       {selectedStore ? (
@@ -137,22 +171,48 @@ const StorePage = () => {
               ]}
             />
 
-            <FilterDrawer
-              minPrice={findMinFromKey(getStoreProducts(storeId), 'price')}
-              maxPrice={findMaxFromKey(getStoreProducts(storeId), 'price')}
-              priceRange={priceRange}
-              setPriceRange={setPriceRange}
-              category={category || null}
-              setCategory={(value) => setCategory(value)}
-              uniqueCategories={uniqueCategories}
-              handleClearAllFilters={handleClearAllFilters}
-              handleSaveFilter={handleSaveFilter}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Autocomplete
+                size="small"
+                disablePortal
+                options={[
+                  {
+                    label: 'Asc',
+                    value: 'asc',
+                  },
+                  {
+                    label: 'Desc',
+                    value: 'desc',
+                  },
+                ]}
+                sx={{ width: '200px' }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Filter by Category" />
+                )}
+                value={sortOrder}
+                onChange={(_, value) => handleSorting(value)}
+              />
+
+              <FilterDrawer
+                minPrice={findMinFromKey(getStoreProducts(storeId), 'price')}
+                maxPrice={findMaxFromKey(getStoreProducts(storeId), 'price')}
+                priceRange={priceRange}
+                setPriceRange={setPriceRange}
+                category={category || null}
+                setCategory={(value) => setCategory(value)}
+                uniqueCategories={uniqueCategories}
+                handleClearAllFilters={handleClearAllFilters}
+                handleSaveFilter={handleSaveFilter}
+              />
+            </Box>
           </StorePageHeader>
 
           {/* List down products */}
           <Suspense fallback={<CircularProgressLoader />}>
-            <ProductListing products={products} />
+            <ProductListing
+              products={products}
+              sortOrder={sortOrder?.value || null}
+            />
           </Suspense>
         </>
       ) : (
