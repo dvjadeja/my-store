@@ -18,6 +18,10 @@ interface FilterDrawerProps {
   setPriceRange: (value: number[]) => void;
   category: string | null;
   setCategory: (value: string | null) => void;
+  sortOrder: {
+    label: string;
+    value: string;
+  } | null;
   uniqueCategories: { label: string; value: string }[];
   handleClearAllFilters: () => void;
   handleSaveFilter: (payload: {
@@ -33,6 +37,7 @@ const FilterDrawer = ({
   setPriceRange,
   category,
   setCategory,
+  sortOrder,
   uniqueCategories,
   handleClearAllFilters,
   handleSaveFilter,
@@ -66,8 +71,8 @@ const FilterDrawer = ({
     // Compare old price range with new price range using lodash
     const isPriceRangeClearable = isEqual(priceRange, [minPrice, maxPrice]);
 
-    return category || !isPriceRangeClearable;
-  }, [category, priceRange, minPrice, maxPrice]);
+    return category || !isPriceRangeClearable || !!sortOrder;
+  }, [category, priceRange, minPrice, maxPrice, sortOrder]);
 
   return (
     <Box>
@@ -114,12 +119,13 @@ const FilterDrawer = ({
               value={
                 category
                   ? uniqueCategories.find((cat) => cat.value === category)
-                  : null
+                  : undefined
               }
               sx={{ width: '100%', mt: 2 }}
               renderInput={(params) => (
                 <TextField {...params} label="Filter by Category" />
               )}
+              disableClearable={true}
               onChange={(_, value) => value && setCategory(value.value)}
             />
           </StyledFilterItemWrapper>

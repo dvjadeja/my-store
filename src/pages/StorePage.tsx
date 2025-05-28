@@ -96,7 +96,7 @@ const StorePage = () => {
       if (!storeId) return;
 
       // filter products by category
-      let tempProducts = getStoreProducts(storeId);
+      let tempProducts = sortOrder ? products : getStoreProducts(storeId);
 
       if (category) {
         tempProducts = tempProducts.filter((product) => {
@@ -113,13 +113,14 @@ const StorePage = () => {
       // setting products
       setProducts(tempProducts);
     },
-    [storeId]
+    [storeId, sortOrder, products]
   );
 
   const handleClearAllFilters = useCallback(() => {
     handleStoreSelection();
     handleSettingProducts();
     setCategory(null);
+    setSortOrder(null);
   }, [handleStoreSelection, handleSettingProducts]);
 
   if (!storeId || !selectedStore) {
@@ -138,7 +139,23 @@ const StorePage = () => {
   ) => {
     if (onChangeValue === null) {
       setSortOrder(null);
-      handleSettingProducts();
+      let tempProducts = sortOrder ? products : getStoreProducts(storeId);
+
+      if (category) {
+        tempProducts = tempProducts.filter((product) => {
+          return product.category === category;
+        });
+      }
+
+      if (priceRange[0] && priceRange[1]) {
+        const [minPrice, maxPrice] = priceRange;
+        tempProducts = tempProducts.filter((product) => {
+          return product.price >= minPrice && product.price <= maxPrice;
+        });
+      }
+
+      // setting products
+      setProducts(tempProducts);
     }
 
     if (!onChangeValue) return;
@@ -200,6 +217,7 @@ const StorePage = () => {
                 setPriceRange={setPriceRange}
                 category={category || null}
                 setCategory={(value) => setCategory(value)}
+                sortOrder={sortOrder}
                 uniqueCategories={uniqueCategories}
                 handleClearAllFilters={handleClearAllFilters}
                 handleSaveFilter={handleSaveFilter}
